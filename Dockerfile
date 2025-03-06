@@ -8,6 +8,6 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
     apk del tzdata
 
 COPY . .
-RUN build_aliyun.sh;
+RUN /opt/certbot-aliyun/build_aliyun.sh;
 
 ENTRYPOINT ["/opt/certbot-aliyun/bootstrap.sh"]
