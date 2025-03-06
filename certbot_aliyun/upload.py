@@ -57,38 +57,41 @@ class Uploader(object):
             region_id = target['region_id']
 
             for lb in target['lbs']:
-                if 'ext_domain' in lb:
-                    r = cli.describe_domain_extensions(slbmdl.DescribeDomainExtensionsRequest(
-                        load_balancer_id=lb['id'],
-                        region_id=region_id,
-                        listener_port=lb['port'],
-                    ))
-                    
-                    if not r.body or not r.body.domain_extensions or not r.body.domain_extensions.domain_extension:
+                try:
+                    if 'ext_domain' in lb:
+                        r = cli.describe_domain_extensions(slbmdl.DescribeDomainExtensionsRequest(
+                            load_balancer_id=lb['id'],
+                            region_id=region_id,
+                            listener_port=lb['port'],
+                        ))
+                        
+                        if not r.body or not r.body.domain_extensions or not r.body.domain_extensions.domain_extension:
+                            continue
+
+                        ext = None
+                        for e in r.body.domain_extensions.domain_extension:
+                            if e.domain == lb['ext_domain']:
+                                ext = e
+                                break
+                        else:
+                            raise ValueError("ext_domain not found, {lb['ext_domain']}")
+
+                        r = cli.set_domain_extension_attribute(slbmdl.SetDomainExtensionAttributeRequest(
+                            domain_extension_id=ext.domain_extension_id,
+                            region_id=region_id,
+                            server_certificate_id=cert_id,
+                        ))
                         continue
 
-                    ext = None
-                    for e in r.body.domain_extensions.domain_extension:
-                        if e.domain == lb['ext_domain']:
-                            ext = e
-                            break
-                    else:
-                        raise ValueError("ext_domain not found, {lb['ext_domain']}")
-
-                    r = cli.set_domain_extension_attribute(slbmdl.SetDomainExtensionAttributeRequest(
-                        domain_extension_id=ext.domain_extension_id,
+                    r = cli.set_load_balancer_httpslistener_attribute(slbmdl.SetLoadBalancerHTTPSListenerAttributeRequest(
                         region_id=region_id,
+                        load_balancer_id=lb['id'],
+                        listener_port=lb['port'],
                         server_certificate_id=cert_id,
                     ))
                     continue
-
-                r = cli.set_load_balancer_httpslistener_attribute(slbmdl.SetLoadBalancerHTTPSListenerAttributeRequest(
-                    region_id=region_id,
-                    load_balancer_id=lb['id'],
-                    listener_port=lb['port'],
-                    server_certificate_id=cert_id,
-                ))
-                continue
+                except Exception as e:
+                    logging.error(f'upload for lb failed, lb= {lb}, error= {e}')
 
         with open(f'{path}/.last_expire_date', 'w') as f:
             f.write(expire_date)

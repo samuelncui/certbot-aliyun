@@ -28,7 +28,7 @@ class Certbot(object):
             --cert-name '{cert['name']}' \
             -d '{domains}'
         """
-        if self.conf['certbot_proxy']:
+        if 'certbot_proxy' in self.conf:
             proxy = self.conf['certbot_proxy']
             command = f'HTTP_PROXY="{proxy}" HTTPS_PROXY="{proxy}" ALL_PROXY="{proxy}" ' + command
 
