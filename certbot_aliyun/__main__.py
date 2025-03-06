@@ -28,6 +28,10 @@ class Certbot(object):
             --cert-name '{cert['name']}' \
             -d '{domains}'
         """
+        if self.conf['certbot_proxy']:
+            proxy = self.conf['certbot_proxy']
+            command = f'HTTP_PROXY="{proxy}" HTTPS_PROXY="{proxy}" ALL_PROXY="{proxy}" ' + command
+
         logging.info(f'sign cert, command= {command}')
         sign = os.system(command)
         if sign != 0:

@@ -5,6 +5,7 @@ access_key_secret: %ALIYUN_KEY_SECRET%
 config_dir: letsencrypt
 work_dir: letsencrypt
 logs_dir: letsencrypt/logs
+certbot_proxy: http://proxy:3128
 
 certs:
   - name: example.com
