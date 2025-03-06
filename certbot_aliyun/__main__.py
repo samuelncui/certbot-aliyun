@@ -8,7 +8,7 @@ class Certbot(object):
     def __init__(self, conf_path):
         self.conf_path = conf_path
         self.conf = get_config(conf_path)
-        self.uploader = Uploader(self.conf)
+        self.uploader = Uploader(conf_path, self.conf)
 
     def sign_cert(self, cert):
         domains = ','.join(d.strip() for d in cert['domains'])

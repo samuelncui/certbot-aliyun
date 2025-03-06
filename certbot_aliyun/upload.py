@@ -7,6 +7,7 @@ from certbot.plugins import dns_common
 from collections import defaultdict
 from cryptography.x509 import load_pem_x509_certificate
 import logging
+import hashlib
 
 
 def init_client(conf, region_id):
@@ -19,9 +20,12 @@ def init_client(conf, region_id):
 
 
 class Uploader(object):
-    def __init__(self, conf):
+    def __init__(self, conf_path, conf):
+        self.conf_path = conf_path
         self.conf = conf
-        pass
+        
+        with open(conf_path) as f:
+            self.conf_sign = hashlib.sha256(f.read().encode()).hexdigest()
 
     def upload(self, cert):
         path = f'{self.conf['work_dir']}/live/{cert['name']}'
@@ -32,15 +36,18 @@ class Uploader(object):
 
         x509 = load_pem_x509_certificate(fullchain.encode())
         expire_date = x509.not_valid_after_utc.strftime('%Y-%m-%d')
+        current_sign = f'{expire_date}|{self.conf_sign}'
+        original_sign = ''
         try:
-            with open(f'{path}/.last_expire_date') as f:
-                current_expire_date = f.read()
-                logging.info(f'{cert['name']}: current_expire_date= {current_expire_date} new_expire_date= {expire_date}')
-                if current_expire_date == expire_date:
-                    logging.info(f'{cert['name']}: expire_date not changed, cert don\'t need update')
-                    return
+            with open(f'{path}/.update_sign') as f:
+                original_sign = f.read()
         except FileNotFoundError:
             pass
+
+        logging.info(f'{cert['name']}: original_sign= {original_sign} current_sign= {current_sign}')
+        if original_sign == current_sign:
+            logging.info(f'{cert['name']}: update sign not changed, cert don\'t need update')
+            return
 
         for target in cert['targets']:
             cli = init_client(self.conf, target['region_id'])
@@ -93,7 +100,7 @@ class Uploader(object):
                 except Exception as e:
                     logging.error(f'upload for lb failed, lb= {lb}, error= {e}')
 
-        with open(f'{path}/.last_expire_date', 'w') as f:
-            f.write(expire_date)
+        with open(f'{path}/.update_sign', 'w') as f:
+            f.write(current_sign)
 
-        logging.info(f'cert upload success, name= {cert['name']} expire_date= {expire_date}')
+        logging.info(f'cert upload success, name= {cert['name']} expire_date= {expire_date} current_sign= {current_sign}')
