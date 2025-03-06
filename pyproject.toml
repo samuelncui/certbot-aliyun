@@ -1,0 +1,29 @@
+[project]
+name = "certbot-aliyun"
+version = "0.1.0"
+description = "tools regarding certbot built for aliyun"
+authors = [
+    {name = "i@cui.to"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "alibabacloud-slb20140515 (>=3.3.27,<4.0.0)",
+    "alibabacloud-alidns20150109 (>=3.5.7,<4.0.0)",
+    "certbot (>=3.2.0,<4.0.0)",
+    "pyyaml (>=6.0.2,<7.0.0)",
+    "cryptography (>=44.0.2,<45.0.0)"
+]
+
+
+[tool.poetry]
+name = "certbot-aliyun"
+packages = [
+    { include = "certbot_aliyun" },
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

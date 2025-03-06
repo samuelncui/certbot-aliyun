@@ -1,0 +1,23 @@
+email: example@example.com
+access_key_id: %ALIYUN_KEY_ID%
+access_key_secret: %ALIYUN_KEY_SECRET%
+
+config_dir: letsencrypt
+work_dir: letsencrypt
+logs_dir: letsencrypt/logs
+
+certs:
+  - name: example.com
+    domains: # 想要签发到哪些域名
+      - '*.example.com'
+    targets: # 需要部署到哪里，目前只支持 CLB
+      - type: clb
+        region_id: cn-xxxx
+        lbs:
+          # 指定端口号，配置证书
+          - id: lb-xxxx
+            port: 443
+          # 如果需要配置到扩展域名，需要使用 `ext_domain` 字段
+          - id: lb-xxxx
+            port: 443
+            ext_domain: some_sub.example.com
