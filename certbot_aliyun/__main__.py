@@ -22,8 +22,8 @@ class Certbot(object):
             --no-redirect \
             --email '{self.conf['email']}' \
             --manual \
-            --manual-auth-hook $'python -m certbot_aliyun.challenge --conf=\'{self.conf_path}\' --auth' \
-            --manual-cleanup-hook $'python -m certbot_aliyun.challenge --conf=\'{self.conf_path}\' --cleanup' \
+            --manual-auth-hook $'python -m certbot_aliyun.challenge --conf=\'{self.conf_path}\' --name=\'{cert['name']}\' --auth' \
+            --manual-cleanup-hook $'python -m certbot_aliyun.challenge --conf=\'{self.conf_path}\' --name=\'{cert['name']}\' --cleanup' \
             --preferred-challenges dns \
             --cert-name '{cert['name']}' \
             -d '{domains}'

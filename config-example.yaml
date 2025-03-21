@@ -2,9 +2,9 @@ email: example@example.com
 access_key_id: %ALIYUN_KEY_ID%
 access_key_secret: %ALIYUN_KEY_SECRET%
 
-config_dir: letsencrypt
-work_dir: letsencrypt
-logs_dir: letsencrypt/logs
+config_dir: .letsencrypt
+work_dir: .letsencrypt
+logs_dir: .letsencrypt/logs
 certbot_proxy: http://proxy:3128
 
 certs:

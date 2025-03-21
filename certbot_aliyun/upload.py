@@ -10,11 +10,13 @@ import logging
 import hashlib
 
 
-def init_client(conf, region_id):
+def init_client(conf, cert, target):
+    access_key_id = target.get('access_key_id') or cert.get('access_key_id') or conf.get('access_key_id')
+    access_key_secret = target.get('access_key_secret') or cert.get('access_key_secret') or conf.get('access_key_secret')
     cli = slb.Client(open_api_models.Config(
-        access_key_id=conf.get('access_key_id'),
-        access_key_secret=conf.get('access_key_secret'),
-        region_id=region_id,
+        access_key_id=access_key_id,
+        access_key_secret=access_key_secret,
+        region_id=target.get('region_id'),
     ))
     return cli
 
@@ -50,7 +52,7 @@ class Uploader(object):
             return
 
         for target in cert['targets']:
-            cli = init_client(self.conf, target['region_id'])
+            cli = init_client(self.conf, cert, target)
 
             aliyun_cert_name = f'lets-encrypt/{expire_date}/{cert['name']}'
             r = cli.upload_server_certificate(slbmdl.UploadServerCertificateRequest(
